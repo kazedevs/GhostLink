@@ -1,12 +1,44 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams } from "next/navigation"; 
 import { Nav } from "../../components/Nav";
-import { Download, File} from "lucide-react";
+import { Download, File } from "lucide-react";
+import { useEffect, useState } from "react";
+import { supabase } from "../../lib/supabase";
 
 const DownloadPage = () => {
   const { id } = useParams();
-  const fileURL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/ghost-files/public/${id}?token=${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`;
+  const [fileURL, setFileURL] = useState("");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const getSignedUrl = async () => {
+      try {
+        const { data, error } = await supabase.storage
+          .from('ghost-files')
+          .createSignedUrl(`public/${id}`, 600, {
+            download: true,
+          }); // 10 mins expiry
+
+        if (error) {
+          console.error("Error getting signed URL:", error);
+          return;
+        }
+
+        if (data) {
+          setFileURL(data.signedUrl);
+        }
+      } catch (err) {
+        console.error("Unexpected error:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (id) {
+      getSignedUrl();
+    }
+  }, [id]);
 
   return (
     <main className="min-h-screen selection:bg-zinc-800 flex flex-col">
@@ -37,16 +69,33 @@ const DownloadPage = () => {
             </div>
 
             <div className="w-full space-y-3">
-              <a
-                href={fileURL}
-                download
-                className="flex items-center justify-center gap-2 w-full h-14 bg-white hover:bg-zinc-200 text-black rounded-full font-medium transition-all active:scale-[0.98] shadow-lg shadow-white/5"
-              >
-                <Download className="w-5 h-5" />
-                Download File
-              </a>
+              {loading ? (
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 w-full h-14 bg-zinc-800 text-zinc-500 rounded-full font-medium cursor-wait"
+                >
+                  <div className="w-5 h-5 border-2 border-zinc-500 border-t-zinc-300 rounded-full animate-spin" />
+                  Decrypting...
+                </button>
+              ) : fileURL ? (
+                <a
+                  href={fileURL}
+                  download
+                  className="flex items-center justify-center gap-2 w-full h-14 bg-white hover:bg-zinc-200 text-black rounded-full font-medium transition-all active:scale-[0.98] shadow-lg shadow-white/5"
+                >
+                  <Download className="w-5 h-5" />
+                  Download File
+                </a>
+              ) : (
+                <button
+                  disabled
+                  className="flex items-center justify-center gap-2 w-full h-14 bg-zinc-800/50 text-red-400 border border-red-900/30 rounded-full font-medium cursor-not-allowed"
+                >
+                  Link Expired or Invalid
+                </button>
+              )}
             </div>
-            <p className="text-center text-zinc-400 text-xs">Expires after one download</p>
+            <p className="text-center text-zinc-400 text-xs">Expires in 10 mins</p>
           </div>
         </div>
       </div>
