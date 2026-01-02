@@ -18,7 +18,7 @@ const SharePage = () => {
         }
     }, []);
 
-    const shareURL = `${baseUrl}/share/${id}`; 
+    const shareURL = `${baseUrl}/download/${id}`; 
 
     const handleCopy = () => {
         navigator.clipboard.writeText(shareURL);
@@ -44,7 +44,7 @@ const SharePage = () => {
                     <div className="bg-zinc-900/50 border border-zinc-800 rounded-3xl p-8 backdrop-blur-xl flex flex-col items-center gap-8">
                         <div className="bg-white p-4 rounded-xl shadow-lg">
                             <QRCode 
-                                value={shareURL || "https://ghostlink.com"} 
+                                value={shareURL || "https://ghost-link-teal.vercel.app"} 
                                 size={180}
                                 style={{ height: "auto", maxWidth: "100%", width: "100%" }}
                             />
