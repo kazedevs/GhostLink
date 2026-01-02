@@ -6,7 +6,7 @@ import { Download, File} from "lucide-react";
 
 const DownloadPage = () => {
   const { id } = useParams();
-  const fileURL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/ghost-files/public/${id}`;
+  const fileURL = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/sign/ghost-files/public/${id}?token=${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY}`;
 
   return (
     <main className="min-h-screen selection:bg-zinc-800 flex flex-col">
