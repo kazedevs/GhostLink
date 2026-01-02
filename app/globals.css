@@ -12,19 +12,10 @@ html {
 }
 
 :root {
-  --background: #ffffff;
-  --foreground: #000000;
-  --card: #fafafa;
-  --border: #e4e4e7;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #000000;
-    --foreground: #ffffff;
-    --card: #09090b;
-    --border: #27272a;
-  }
+  --background: #000000;
+  --foreground: #ffffff;
+  --card: #09090b;
+  --border: #27272a;
 }
 
 body {
