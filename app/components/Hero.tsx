@@ -9,7 +9,7 @@ export const Hero = () => {
         </h1>
         
         <p className="text-md md:text-lg text-zinc-400 max-w-2xl mx-auto font-light leading-relaxed">
-          Files are encrypted, automatically deleted after 24 hours, and no personal profiles are ever created.
+          Files are encrypted, automatically deleted after the first download, and no personal profiles are ever created.
         </p>
       </div>
     </section>

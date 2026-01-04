@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase";
+import { supabaseAdmin } from "@/lib/admin";
 import { nanoid } from "nanoid";
 import { MAX_FILE_SIZE } from "@/constants/index";
 
@@ -18,10 +19,10 @@ export async function POST(req: NextRequest) {
 
         //generate random id
         const id = nanoid(20);
-        const fileUrl = `${id}/${file.name}`;
+        const storagePath = `public/${id}`;
 
         //upload to supabase storage
-        const {error: uploadError} = await supabase.storage.from("ghost-files").upload(fileUrl, file, {
+        const {error: uploadError} = await supabase.storage.from("ghost-files").upload(storagePath, file, {
             cacheControl: "3600",
             upsert: false,
             contentType: file.type,
@@ -32,14 +33,10 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Internal server error" }, { status: 500 });
         }
 
-        const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
-
-        const {error: dbError} = await supabase.from("ghost-files").insert({
+        const {error: dbError} = await supabaseAdmin.from("files").insert({
             id,
             original_name: file.name,
-            expires_at: expiresAt,
-            storage_path: fileUrl,
-            max_downloads: 1
+            storage_path: storagePath,
         });
 
         if(dbError) {

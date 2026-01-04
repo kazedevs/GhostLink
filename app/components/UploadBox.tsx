@@ -3,10 +3,9 @@
 import React, { useState, useCallback } from 'react';
 import {useDropzone} from 'react-dropzone';
 import { Upload, File, X } from 'lucide-react';
-import { nanoid } from 'nanoid';
 import {formatSize} from '@/lib/utils';
-import {MAX_FILE_SIZE} from '@/constants';
-import { supabase } from '@/lib/supabase';
+import {MAX_FILE_SIZE } from '@/constants';
+import axios from "axios";
 import { useRouter } from 'next/navigation';
 
 const UploadBox = () => {
@@ -24,19 +23,23 @@ const UploadBox = () => {
         setUploadedFileName(null);
 
         try {
-            const fileExt = fileToUpload.name.split('.').pop();
-            const fileName = `${nanoid()}.${fileExt}`;
-            const filePath = `public/${fileName}`;
+            const formData = new FormData();
+            formData.append('file', fileToUpload);
 
-            const { data, error } = await supabase.storage
-                .from('ghost-files')
-                .upload(filePath, fileToUpload);
+            const response = await axios.post('/api/upload', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data',
+                },
+            });
 
-            if (error) throw error;
+            if (!response.data) {
+                throw new Error('Upload failed');
+            }
 
-            console.log("Upload successful:", data);
+            console.log("Upload successful:", response.data);
+            
             setProgress(100);
-            setUploadedFileName(fileName);
+            setUploadedFileName(response.data.id);
         } catch (error: any) {
             console.error("Upload failed:", error);
             setUploading(false);
